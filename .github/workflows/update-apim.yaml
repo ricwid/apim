@@ -25,12 +25,14 @@ jobs:
         run: |
           echo "Reading parameters from client payload..."
           echo "APIM_SERVICE_NAME=${{ github.event.client_payload.apim_service_name }}"
+          echo "BACKEND_API_URL=${{ github.event.client_payload.backend_api_url }}"
           echo "RESOURCE_GROUP=${{ github.event.client_payload.resource_group }}"
           echo "API_PATH=${{ github.event.client_payload.api_path }}"
           echo "API_SPEC=${{ github.event.client_payload.api_spec }}"
           echo "API_ID=${{ github.event.client_payload.api_id }}"
           echo "API_REVISION=${{ github.event.client_payload.api_revision }}"
           echo "APIM_SERVICE_NAME=${{ github.event.client_payload.apim_service_name }}" >> $GITHUB_ENV
+          echo "BACKEND_API_URL=${{ github.event.client_payload.backend_api_url }}" >> $GITHUB_ENV
           echo "RESOURCE_GROUP=${{ github.event.client_payload.resource_group }}" >> $GITHUB_ENV
           echo "API_PATH=${{ github.event.client_payload.api_path }}" >> $GITHUB_ENV
           echo "API_SPEC=${{ github.event.client_payload.api_spec }}" >> $GITHUB_ENV
@@ -49,7 +51,7 @@ jobs:
           echo "Updating API Management instance..."
           az apim api import \
             --service-name ${{ env.APIM_SERVICE_NAME }} \
-            --service-url=${{ env.APIM_API_URL }} \
+            --service-url=${{ env.BACKEND_API_URL }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --path ${{ env.API_PATH }} \
             --specification-format OpenApi \
