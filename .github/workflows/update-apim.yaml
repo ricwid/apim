@@ -1,0 +1,58 @@
+name: Update API Management
+
+on:
+  repository_dispatch:
+    types:
+      - trigger-api-management
+
+jobs:
+  update-api-management:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      # 1. Manual Approval Step
+      - name: Require Manual Approval
+        uses: hmarr/auto-approve-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Confirm Update
+        run: echo "Manual Approval received. Proceeding with API Management update."
+
+      # 2. Parse Input Parameters
+      - name: Read Input Parameters
+        run: |
+          echo "Reading parameters from client payload..."
+          echo "APIM_SERVICE_NAME=${{ github.event.client_payload.apim_service_name }}"
+          echo "RESOURCE_GROUP=${{ github.event.client_payload.resource_group }}"
+          echo "API_PATH=${{ github.event.client_payload.api_path }}"
+          echo "API_SPEC=${{ github.event.client_payload.api_spec }}"
+          echo "API_ID=${{ github.event.client_payload.api_id }}"
+          echo "API_REVISION=${{ github.event.client_payload.api_revision }}"
+          echo "APIM_SERVICE_NAME=${{ github.event.client_payload.apim_service_name }}" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP=${{ github.event.client_payload.resource_group }}" >> $GITHUB_ENV
+          echo "API_PATH=${{ github.event.client_payload.api_path }}" >> $GITHUB_ENV
+          echo "API_SPEC=${{ github.event.client_payload.api_spec }}" >> $GITHUB_ENV
+          echo "API_ID=${{ github.event.client_payload.api_id }}" >> $GITHUB_ENV
+          echo "API_REVISION=${{ github.event.client_payload.api_revision }}" >> $GITHUB_ENV
+
+      # 3. Log in to Azure
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 4. Update API Management
+      - name: Update API in API Management
+        run: |
+          echo "Updating API Management instance..."
+          az apim api import \
+            --service-name ${{ env.APIM_SERVICE_NAME }} \
+            --service-url=${{ env.APIM_API_URL }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --path ${{ env.API_PATH }} \
+            --specification-format OpenApi \
+            --specification-url ${{ env.API_SPEC }} \
+            --api-id ${{ env.API_ID }} \
+            --api-revision ${{ env.API_REVISION }}
