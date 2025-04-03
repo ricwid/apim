@@ -8,7 +8,7 @@ on:
 jobs:
   update-api-management:
     runs-on: ubuntu-latest
-    environment: production
+    environment: dev
 
     steps:
       # 1. Manual Approval Step
